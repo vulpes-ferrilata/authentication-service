@@ -1,0 +1,27 @@
+[
+    {
+        "locale": "en",
+        "key": "invalid-email",
+        "trans": "email is invalid"
+    },
+    {
+        "locale": "en",
+        "key": "invalid-password",
+        "trans": "password is invalid"
+    },
+    {
+        "locale": "en",
+        "key": "revoked-token",
+        "trans": "token has been expired or revoked"
+    },
+    {
+        "locale": "en",
+        "key": "duplicate-login",
+        "trans": "account has been logged in by another device"
+    },
+    {
+        "locale": "en",
+        "key": "invalid-token",
+        "trans": "token is invalid"
+    }
+]

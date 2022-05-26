@@ -1,0 +1,22 @@
+[
+    {
+        "locale": "en",
+        "key": "validation-error-title",
+        "trans": "one or more validation errors occured"
+    },
+    {
+        "locale": "en",
+        "key": "validation-error-detail",
+        "trans": "the request contains invalid parameter, more information can be found in the errors"
+    },
+    {
+        "locale": "en",
+        "key": "business-error-title",
+        "trans": "one or more business rule violation occured"
+    },
+    {
+        "locale": "en",
+        "key": "business-error-detail",
+        "trans": "the request cannot be proceeded, more information can be found in the errors"
+    }
+]
