@@ -1,0 +1,18 @@
+server:
+  address: 127.0.0.1:7000
+database:
+  address: 127.0.0.1:27017
+  name: authentication
+  username: authentication
+  password: 123456
+redis:
+  address: 127.0.0.1:6379
+  password: 123456
+access_token:
+  algorithm: HS512
+  secret_key: jKwIWRvzDyn-e3xcMvWEe0oCwcdhUi0Hm7RDREEUFDgKWBHHbm2Fd0zWqYnQ5jWEl-SeGrV7rUx46p4ntQro5mweZBJiVDthrLZPK7bUustZZE-fOb0CIJizNNOBSwq0bS0uhwu9ftl7EPdzgs7ZNN6XMFu5fePI_d4q7UTFHAjZsY_Tn-PJz1sFjtV-2l9hsSlTN0XHC3-Ij5crhkObLOTAogjDBwrK8lo1g2D47fgi0uS5GlmEeAWfdcutmfQUIpmrCorU1-m2YKbbuJwzVU16oxHtXzJhEgJoQLE93lAUZ7GCGXuMoMj_bwiJoEo-4bN9ZA3_f-Th37HMWnf-lA
+  expiration: 24h
+refresh_token:
+  algorithm: HS512
+  secret_key: zzKTTJb1J0pkcMM5iC3rECWfM3FJ57VYsztfIcpVVSsgUBnN2q6zoZgyx3yM6ub9D-ZPCL8GeaGA2H31vTml5MGgmZL830bfCjh1wrwoXghQOcpfojYBnK-8WZq6gxh4UXZA_TnDTGkKr78MbB5eb7xGjj5KcLeeJyxQvc_eK0FmXggHbb0ivpVdzRSa0xMtTL442jRTHiPD-P3GX9Q_uQuBmwD1084HvhDoXYQAB6FBe-BKs7EO-KdyK74_awhYyeeBOS7gS_IeNnRq44rnw0HCRiLViyBph-ivRoITPJZTLp8o3yfZZnLz4gJPCQ_gNL28Ft_SBitYTkKOYQ2hhA
+  expiration: 168h

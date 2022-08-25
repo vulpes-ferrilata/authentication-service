@@ -4,40 +4,54 @@ import (
 	"context"
 	"time"
 
-	service "github.com/VulpesFerrilata/authentication-service"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type TokenService interface {
-	Encrypt(ctx context.Context, registeredClaim *jwt.RegisteredClaims) (string, error)
-	Decrypt(ctx context.Context, token string) (*jwt.RegisteredClaims, error)
+	Encrypt(ctx context.Context, id primitive.ObjectID) (string, error)
+	Decrypt(ctx context.Context, token string) (primitive.ObjectID, error)
 }
 
-func NewTokenService(signingMethod jwt.SigningMethod, secretKey string, duration time.Duration) TokenService {
-	return &tokenService{
-		signingMethod: signingMethod,
-		secretKey:     secretKey,
-		duration:      duration,
+func NewTokenService(algorithm string, secretKey string, expiration string) (TokenService, error) {
+	signingMethod := jwt.GetSigningMethod(algorithm)
+	if signingMethod == nil {
+		return nil, errors.Errorf("%s is invalid signing method", algorithm)
 	}
+
+	expirationDuration, err := time.ParseDuration(expiration)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &tokenService{
+		signingMethod:      signingMethod,
+		secretKey:          secretKey,
+		expirationDuration: expirationDuration,
+	}, nil
 }
 
 type tokenService struct {
-	signingMethod jwt.SigningMethod
-	secretKey     string
-	duration      time.Duration
+	signingMethod      jwt.SigningMethod
+	secretKey          string
+	expirationDuration time.Duration
 }
 
-func (t tokenService) Encrypt(ctx context.Context, registeredClaim *jwt.RegisteredClaims) (string, error) {
-	registeredClaim.IssuedAt = jwt.NewNumericDate(time.Now())
-	registeredClaim.ExpiresAt = jwt.NewNumericDate(time.Now().Add(t.duration))
+func (t tokenService) Encrypt(ctx context.Context, id primitive.ObjectID) (string, error) {
+	registeredClaim := &jwt.RegisteredClaims{
+		ID:        id.Hex(),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(t.expirationDuration)),
+	}
 
 	token, err := jwt.NewWithClaims(t.signingMethod, registeredClaim).SignedString([]byte(t.secretKey))
 
 	return token, errors.WithStack(err)
 }
 
-func (t tokenService) Decrypt(ctx context.Context, token string) (*jwt.RegisteredClaims, error) {
+func (t tokenService) Decrypt(ctx context.Context, token string) (primitive.ObjectID, error) {
 	registeredClaim := new(jwt.RegisteredClaims)
 
 	parser := jwt.NewParser(
@@ -48,8 +62,17 @@ func (t tokenService) Decrypt(ctx context.Context, token string) (*jwt.Registere
 	if _, err := parser.ParseWithClaims(token, registeredClaim, func(token *jwt.Token) (interface{}, error) {
 		return []byte(t.secretKey), nil
 	}); err != nil {
-		return nil, errors.WithStack(service.ErrTokenIsInvalid)
+		return primitive.NilObjectID, app_errors.ErrTokenIsInvalid
 	}
 
-	return registeredClaim, nil
+	if !registeredClaim.VerifyExpiresAt(time.Now(), true) {
+		return primitive.NilObjectID, app_errors.ErrTokenHasBeenExpired
+	}
+
+	id, err := primitive.ObjectIDFromHex(registeredClaim.ID)
+	if err != nil {
+		return primitive.NilObjectID, errors.WithStack(err)
+	}
+
+	return id, nil
 }

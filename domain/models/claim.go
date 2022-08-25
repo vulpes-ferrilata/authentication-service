@@ -1,25 +1,12 @@
 package models
 
-import (
-	"github.com/google/uuid"
-)
-
-func NewClaim(userID uuid.UUID, jti uuid.UUID) *Claim {
-	return &Claim{
-		userID: userID,
-		jti:    jti,
-	}
-}
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Claim struct {
-	userID uuid.UUID
-	jti    uuid.UUID
+	aggregateRoot
+	userID primitive.ObjectID
 }
 
-func (c Claim) GetUserID() uuid.UUID {
+func (c Claim) GetUserID() primitive.ObjectID {
 	return c.userID
-}
-
-func (c Claim) GetJTI() uuid.UUID {
-	return c.jti
 }

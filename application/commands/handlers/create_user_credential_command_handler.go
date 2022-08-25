@@ -3,55 +3,53 @@ package handlers
 import (
 	"context"
 
-	"github.com/VulpesFerrilata/authentication-service/application/commands"
-	"github.com/VulpesFerrilata/authentication-service/domain/services"
-	"github.com/VulpesFerrilata/authentication-service/infrastructure/dig/results"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/authentication-service/application/commands"
+	"github.com/vulpes-ferrilata/authentication-service/domain/models"
+	"github.com/vulpes-ferrilata/authentication-service/domain/repositories"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command/wrappers"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewCreateUserCredentialCommandHandler(validate *validator.Validate,
-	userCredentialService services.UserCredentialService,
-	userService services.UserService) results.CommandHandlerResult {
-	commandHandler := &createUserCredentialCommandHandler{
-		userCredentialService: userCredentialService,
-		userService:           userService,
+func NewCreateUserCredentialCommandHandler(validate *validator.Validate, db *mongo.Database, userCredentialRepository repositories.UserCredentialRepository) command.CommandHandler[*commands.CreateUserCredentialCommand] {
+	handler := &createUserCredentialCommandHandler{
+		userCredentialRepository: userCredentialRepository,
 	}
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateUserCredentialCommand](db, handler)
+	validationWrapper := wrappers.NewValidationWrapper[*commands.CreateUserCredentialCommand](validate, transactionWrapper)
 
-	return results.CommandHandlerResult{
-		CommandHandler: commandHandler,
-	}
+	return validationWrapper
 }
 
 type createUserCredentialCommandHandler struct {
-	userCredentialService services.UserCredentialService
-	userService           services.UserService
+	userCredentialRepository repositories.UserCredentialRepository
 }
 
-func (c createUserCredentialCommandHandler) GetCommand() interface{} {
-	return &commands.CreateUserCredentialCommand{}
-}
-
-func (c createUserCredentialCommandHandler) Handle(ctx context.Context, command interface{}) error {
-	createUserCredentialCommand := command.(*commands.CreateUserCredentialCommand)
-
-	id, err := uuid.Parse(createUserCredentialCommand.ID)
+func (c createUserCredentialCommandHandler) Handle(ctx context.Context, createUserCredentialCommand *commands.CreateUserCredentialCommand) error {
+	id, err := primitive.ObjectIDFromHex(createUserCredentialCommand.ID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := uuid.Parse(createUserCredentialCommand.UserID)
+	userID, err := primitive.ObjectIDFromHex(createUserCredentialCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userCredential, err := c.userCredentialService.NewUserCredential(ctx, id, userID, createUserCredentialCommand.Email, createUserCredentialCommand.Password)
-	if err != nil {
+	userCredential := models.NewUserCredentialBuilder().
+		SetID(id).
+		SetUserID(userID).
+		SetEmail(createUserCredentialCommand.Email).
+		Create()
+
+	if err := userCredential.SetPassword(createUserCredentialCommand.Password); err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := c.userCredentialService.Save(ctx, userCredential); err != nil {
+	if err := c.userCredentialRepository.Insert(ctx, userCredential); err != nil {
 		return errors.WithStack(err)
 	}
 

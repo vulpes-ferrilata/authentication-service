@@ -3,68 +3,47 @@ package handlers
 import (
 	"context"
 
-	"github.com/VulpesFerrilata/authentication-service/application/queries"
-	"github.com/VulpesFerrilata/authentication-service/application/queries/dtos"
-	domain_services "github.com/VulpesFerrilata/authentication-service/domain/services"
-	"github.com/VulpesFerrilata/authentication-service/domain/validators"
-	"github.com/VulpesFerrilata/authentication-service/infrastructure/dig/results"
-	"github.com/VulpesFerrilata/authentication-service/infrastructure/services"
-	"github.com/google/uuid"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/authentication-service/application/queries"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/query"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/query/wrappers"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
+	"github.com/vulpes-ferrilata/authentication-service/view/models"
+	"github.com/vulpes-ferrilata/authentication-service/view/projectors"
 )
 
-func NewGetClaimByAccessTokenQueryHandler(claimValidator validators.ClaimValidator,
-	claimService domain_services.ClaimService,
-	tokenFactoryService services.TokenFactoryService) results.QueryHandlerResult {
-	queryHandler := &getClaimByAccessTokenQueryHandler{
-		claimValidator:      claimValidator,
-		claimService:        claimService,
-		tokenFactoryService: tokenFactoryService,
+func NewGetClaimByAccessTokenQueryHandler(validate *validator.Validate,
+	tokenServiceResolver services.TokenServiceResolver,
+	claimProjector projectors.ClaimProjector) query.QueryHandler[*queries.GetClaimByAccessTokenQuery, *models.Claim] {
+	handler := &getClaimByAccessTokenQueryHandler{
+		tokenServiceResolver: tokenServiceResolver,
+		claimProjector:       claimProjector,
 	}
+	validationWrapper := wrappers.NewValidationWrapper[*queries.GetClaimByAccessTokenQuery, *models.Claim](validate, handler)
 
-	return results.QueryHandlerResult{
-		QueryHandler: queryHandler,
-	}
+	return validationWrapper
 }
 
 type getClaimByAccessTokenQueryHandler struct {
-	claimValidator      validators.ClaimValidator
-	claimService        domain_services.ClaimService
-	tokenFactoryService services.TokenFactoryService
+	tokenServiceResolver services.TokenServiceResolver
+	claimProjector       projectors.ClaimProjector
 }
 
-func (g getClaimByAccessTokenQueryHandler) GetQuery() interface{} {
-	return &queries.GetClaimByAccessTokenQuery{}
-}
-
-func (g getClaimByAccessTokenQueryHandler) Handle(ctx context.Context, query interface{}) (interface{}, error) {
-	getClaimByAccessTokenQuery := query.(*queries.GetClaimByAccessTokenQuery)
-
-	registeredClaim, err := g.tokenFactoryService.GetTokenService(services.AccessToken).Decrypt(ctx, getClaimByAccessTokenQuery.AccessToken)
+func (g getClaimByAccessTokenQueryHandler) Handle(ctx context.Context, getClaimByAccessTokenQuery *queries.GetClaimByAccessTokenQuery) (*models.Claim, error) {
+	id, err := g.tokenServiceResolver.GetTokenService(services.AccessToken).Decrypt(ctx, getClaimByAccessTokenQuery.AccessToken)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	jti, err := uuid.Parse(registeredClaim.ID)
+	claim, err := g.claimProjector.GetByID(ctx, id)
+	if errors.Is(err, app_errors.ErrClaimNotFound) {
+		return nil, errors.WithStack(app_errors.ErrTokenHasBeenRevoked)
+	}
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	userID, err := uuid.Parse(registeredClaim.Subject)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	if err := g.claimValidator.ValidateAuthentication(ctx, userID, jti); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	claim, err := g.claimService.GetByUserID(ctx, userID)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	claimDTO := dtos.NewClaimDTO(claim)
-
-	return claimDTO, nil
+	return claim, nil
 }

@@ -1,27 +1,22 @@
 [
     {
         "locale": "en",
-        "key": "invalid-email",
-        "trans": "email is invalid"
-    },
-    {
-        "locale": "en",
-        "key": "invalid-password",
+        "key": "password-is-invalid",
         "trans": "password is invalid"
     },
     {
         "locale": "en",
-        "key": "revoked-token",
-        "trans": "token has been expired or revoked"
-    },
-    {
-        "locale": "en",
-        "key": "duplicate-login",
-        "trans": "account has been logged in by another device"
-    },
-    {
-        "locale": "en",
-        "key": "invalid-token",
+        "key": "token-is-invalid",
         "trans": "token is invalid"
+    },
+    {
+        "locale": "en",
+        "key": "token-has-been-expired",
+        "trans": "token has been expired"
+    },
+    {
+        "locale": "en",
+        "key": "token-has-been-revoked",
+        "trans": "token has been revoked"
     }
 ]

@@ -1,83 +1,59 @@
 package infrastructure
 
 import (
-	command_handlers "github.com/VulpesFerrilata/authentication-service/application/commands/handlers"
-	query_handlers "github.com/VulpesFerrilata/authentication-service/application/queries/handlers"
-	"github.com/VulpesFerrilata/authentication-service/domain/mappers"
-	domain_services "github.com/VulpesFerrilata/authentication-service/domain/services"
-	"github.com/VulpesFerrilata/authentication-service/domain/validators"
-	"github.com/VulpesFerrilata/authentication-service/infrastructure/middlewares"
-	"github.com/VulpesFerrilata/authentication-service/infrastructure/persistence/repositories"
-	"github.com/VulpesFerrilata/authentication-service/infrastructure/services"
-	persistence_repositories "github.com/VulpesFerrilata/authentication-service/persistence/repositories"
-	"github.com/VulpesFerrilata/shared/proto/user"
-	"github.com/asim/go-micro/v3/client"
-	"github.com/go-redis/redis/v8"
-	"github.com/golang-jwt/jwt/v4"
+	command_handlers "github.com/vulpes-ferrilata/authentication-service/application/commands/handlers"
+	query_handlers "github.com/vulpes-ferrilata/authentication-service/application/queries/handlers"
+	mongo_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/repositories"
+	redis_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/redis/repositories"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/grpc/interceptors"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/view/redis/projectors"
+	"github.com/vulpes-ferrilata/authentication-service/presentation"
+	"github.com/vulpes-ferrilata/authentication-service/presentation/v1/servers"
 	"go.uber.org/dig"
 )
 
 func NewContainer() *dig.Container {
 	container := dig.New()
 
-	//Other services
-	container.Provide(func(config *Config) services.TokenFactoryService {
-		accessTokenService := services.NewTokenService(jwt.SigningMethodHS512, config.Authentication.AccessTokenSecret, config.Authentication.AccessTokenDuration)
-		refreshTokenService := services.NewTokenService(jwt.SigningMethodHS512, config.Authentication.RefreshTokenSecret, config.Authentication.RefreshTokenDuration)
-		return services.NewTokenFactoryService(accessTokenService, refreshTokenService)
-	})
-
-	//3rd party libraries
+	//Infrastructure layer
 	container.Provide(NewConfig)
 	container.Provide(NewRedis)
-	container.Provide(NewGorm)
-	container.Provide(NewValidate)
-	container.Provide(NewCommandBus)
-	container.Provide(NewQueryBus)
+	container.Provide(NewMongo)
+	container.Provide(NewValidator)
+	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
-
-	//middlewares
-	container.Provide(middlewares.NewErrorHandlerMiddleware)
-	container.Provide(middlewares.NewValidationMiddleware)
-	container.Provide(middlewares.NewTransactionMiddleware)
-	container.Provide(middlewares.NewTranslatorMiddleware)
-
-	//Persistence layer
-	container.Provide(repositories.NewUserCredentialRepository)
-	container.Provide(func(rdb *redis.Client, config *Config) persistence_repositories.ClaimRepository {
-		return repositories.NewClaimRepository(rdb, config.Authentication.RefreshTokenDuration)
-	})
+	//--3rd party services
+	container.Provide(services.NewTokenServiceResolver)
+	//--Grpc interceptors
+	container.Provide(interceptors.NewErrorHandlerInterceptor)
+	container.Provide(interceptors.NewLocaleInterceptor)
 
 	//Domain layer
-	//--Services
-	container.Provide(domain_services.NewUserCredentialService)
-	container.Provide(domain_services.NewClaimService)
-	container.Provide(domain_services.NewUserService)
-	//--Mappers
-	container.Provide(mappers.NewUserCredentialMapper)
-	container.Provide(mappers.NewClaimMapper)
-	//--Validators
-	container.Provide(validators.NewUserCredentialValidator)
-	container.Provide(validators.NewClaimValidator)
+	//--Repositories
+	container.Provide(mongo_repositories.NewUserCredentialRepository)
+	container.Provide(redis_repositories.NewClaimRepository)
 
-	//Micro services
-	container.Provide(func(client client.Client) user.UserService {
-		return user.NewUserService("boardgame.user.service", client)
-	})
+	//View layer
+	//--Projectors
+	container.Provide(projectors.NewClaimProjector)
 
 	//Application layer
 	//--Queries
-	container.Provide(query_handlers.NewGetAccessTokenByClaimQueryHandler)
 	container.Provide(query_handlers.NewGetClaimByAccessTokenQueryHandler)
-	container.Provide(query_handlers.NewGetRefreshTokenByClaimQueryHandler)
-	container.Provide(query_handlers.NewGetClaimByRefreshTokenQueryHandler)
-	container.Provide(query_handlers.NewGetUserCredentialByEmailAndPasswordQueryHandler)
+	container.Provide(query_handlers.NewGetTokenByClaimIDQueryHandler)
+	container.Provide(query_handlers.NewGetTokenByRefreshTokenQueryHandler)
 	//--Commands
-	container.Provide(command_handlers.NewCreateClaimCommandHandler)
 	container.Provide(command_handlers.NewCreateUserCredentialCommandHandler)
-	container.Provide(command_handlers.NewCreateUserCommandHandler)
-	container.Provide(command_handlers.NewRemoveClaimCommandHandler)
-	container.Provide(command_handlers.NewRemoveUserCredentialCommandHandler)
+	container.Provide(command_handlers.NewLoginCommandHandler)
+	container.Provide(command_handlers.NewDeleteUserCredentialCommandHandler)
+	container.Provide(command_handlers.NewRevokeTokenCommandHandler)
+
+	//Presentation layer
+	//--Server
+	container.Provide(presentation.NewServer)
+	//--Controllers
+	container.Provide(servers.NewAuthenticationServer)
 
 	return container
 }

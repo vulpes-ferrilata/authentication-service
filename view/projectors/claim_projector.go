@@ -3,23 +3,10 @@ package projectors
 import (
 	"context"
 
-	"github.com/VulpesFerrilata/authentication-service/persistence/repositories"
-	"github.com/VulpesFerrilata/authentication-service/view/models"
-	"github.com/google/uuid"
+	"github.com/vulpes-ferrilata/authentication-service/view/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ClaimProjector interface {
-	GetByID(ctx context.Context, userID uuid.UUID) (*models.Claim, error)
-}
-
-func NewClaimProjector() ClaimProjector {
-	return &claimProjector{}
-}
-
-type claimProjector struct {
-	claimRepository repositories.ClaimRepository
-}
-
-func (c claimProjector) GetByID(ctx context.Context, userID uuid.UUID) (*models.Claim, error) {
-
+	GetByID(ctx context.Context, id primitive.ObjectID) (*models.Claim, error)
 }

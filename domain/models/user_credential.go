@@ -1,27 +1,20 @@
 package models
 
 import (
-	"github.com/VulpesFerrilata/authentication-service/domain/models/common"
-	"github.com/google/uuid"
+	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func NewUserCredential(id uuid.UUID, userID uuid.UUID, email string, hashPassword []byte) *UserCredential {
-	return &UserCredential{
-		Entity:       common.NewEntity(id),
-		userID:       userID,
-		email:        email,
-		hashPassword: hashPassword,
-	}
-}
-
 type UserCredential struct {
-	common.Entity
-	userID       uuid.UUID
+	aggregateRoot
+	userID       primitive.ObjectID
 	email        string
 	hashPassword []byte
 }
 
-func (u UserCredential) GetUserID() uuid.UUID {
+func (u UserCredential) GetUserID() primitive.ObjectID {
 	return u.userID
 }
 
@@ -31,4 +24,22 @@ func (u UserCredential) GetEmail() string {
 
 func (u UserCredential) GetHashPassword() []byte {
 	return u.hashPassword
+}
+
+func (u *UserCredential) SetPassword(password string) error {
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.WithStack(app_errors.ErrUnableToEncryptPassword)
+	}
+	u.hashPassword = hashPassword
+
+	return nil
+}
+
+func (u UserCredential) ComparePassword(password string) error {
+	if err := bcrypt.CompareHashAndPassword(u.hashPassword, []byte(password)); err != nil {
+		return errors.WithStack(app_errors.ErrPasswordIsInvalid)
+	}
+
+	return nil
 }

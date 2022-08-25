@@ -1,6 +1,8 @@
 package models
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type Claim struct {
-	UserID string
-	JTI    string
+	ID     primitive.ObjectID
+	UserID primitive.ObjectID
 }

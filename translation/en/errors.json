@@ -1,22 +1,17 @@
 [
     {
         "locale": "en",
-        "key": "validation-error-title",
-        "trans": "one or more validation errors occured"
+        "key": "command-validation-error",
+        "trans": "the command contains invalid parameters"
     },
     {
         "locale": "en",
-        "key": "validation-error-detail",
-        "trans": "the request contains invalid parameter, more information can be found in the errors"
+        "key": "not-found-error",
+        "trans": "{0} not found"
     },
     {
         "locale": "en",
-        "key": "business-error-title",
-        "trans": "one or more business rule violation occured"
-    },
-    {
-        "locale": "en",
-        "key": "business-error-detail",
-        "trans": "the request cannot be proceeded, more information can be found in the errors"
+        "key": "stale-object-error",
+        "trans": "attempted to update or delete a stale {0}"
     }
 ]

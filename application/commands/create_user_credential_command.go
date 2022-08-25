@@ -1,8 +1,8 @@
 package commands
 
 type CreateUserCredentialCommand struct {
-	ID       string `validate:"required,uuid4"`
-	UserID   string `validate:"required,uuid4"`
-	Email    string `validate:"required,email,duplicate=user_credentials.email"`
+	ID       string `validate:"required,objectid"`
+	UserID   string `validate:"required,objectid"`
+	Email    string `validate:"required,email"`
 	Password string `validate:"required,gte=8"`
 }
