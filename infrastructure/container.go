@@ -4,6 +4,7 @@ import (
 	command_handlers "github.com/vulpes-ferrilata/authentication-service/application/commands/handlers"
 	query_handlers "github.com/vulpes-ferrilata/authentication-service/application/queries/handlers"
 	mongo_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/repositories"
+	mongo_services "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/services"
 	redis_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/redis/repositories"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/grpc/interceptors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
@@ -26,6 +27,7 @@ func NewContainer() *dig.Container {
 	//--3rd party services
 	container.Provide(services.NewTokenServiceResolver)
 	//--Grpc interceptors
+	container.Provide(interceptors.NewRecoverInterceptor)
 	container.Provide(interceptors.NewErrorHandlerInterceptor)
 	container.Provide(interceptors.NewLocaleInterceptor)
 
@@ -33,6 +35,8 @@ func NewContainer() *dig.Container {
 	//--Repositories
 	container.Provide(mongo_repositories.NewUserCredentialRepository)
 	container.Provide(redis_repositories.NewClaimRepository)
+	//--Services
+	container.Provide(mongo_services.NewUserCredentialValidationService)
 
 	//View layer
 	//--Projectors

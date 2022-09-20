@@ -18,7 +18,7 @@ func NewDeleteUserCredentialCommandHandler(validate *validator.Validate, db *mon
 		userCredentialRepository: userCredentialRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.DeleteUserCredentialCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.DeleteUserCredentialCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }

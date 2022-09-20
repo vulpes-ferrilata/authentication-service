@@ -1,0 +1,12 @@
+[
+    {
+        "locale": "en",
+        "key": "user-credential",
+        "trans": "user credential"
+    },
+    {
+        "locale": "en",
+        "key": "claim",
+        "trans": "claim"
+    }
+]

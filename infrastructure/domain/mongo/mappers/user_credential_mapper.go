@@ -28,7 +28,7 @@ func ToUserCredentialDomain(userCredentialDocument *documents.UserCredential) *m
 		return nil
 	}
 
-	return models.NewUserCredentialBuilder().
+	return models.UserCredentialBuilder{}.
 		SetID(userCredentialDocument.ID).
 		SetUserID(userCredentialDocument.UserID).
 		SetEmail(userCredentialDocument.Email).

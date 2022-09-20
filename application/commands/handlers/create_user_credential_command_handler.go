@@ -8,24 +8,31 @@ import (
 	"github.com/vulpes-ferrilata/authentication-service/application/commands"
 	"github.com/vulpes-ferrilata/authentication-service/domain/models"
 	"github.com/vulpes-ferrilata/authentication-service/domain/repositories"
+	"github.com/vulpes-ferrilata/authentication-service/domain/services"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command/wrappers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewCreateUserCredentialCommandHandler(validate *validator.Validate, db *mongo.Database, userCredentialRepository repositories.UserCredentialRepository) command.CommandHandler[*commands.CreateUserCredentialCommand] {
+func NewCreateUserCredentialCommandHandler(validate *validator.Validate,
+	db *mongo.Database,
+	userCredentialRepository repositories.UserCredentialRepository,
+	userCredentialValidationService services.UserCredentialValidationService) command.CommandHandler[*commands.CreateUserCredentialCommand] {
 	handler := &createUserCredentialCommandHandler{
-		userCredentialRepository: userCredentialRepository,
+		userCredentialRepository:        userCredentialRepository,
+		userCredentialValidationService: userCredentialValidationService,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateUserCredentialCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.CreateUserCredentialCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
 
 type createUserCredentialCommandHandler struct {
-	userCredentialRepository repositories.UserCredentialRepository
+	userCredentialRepository        repositories.UserCredentialRepository
+	userCredentialValidationService services.UserCredentialValidationService
 }
 
 func (c createUserCredentialCommandHandler) Handle(ctx context.Context, createUserCredentialCommand *commands.CreateUserCredentialCommand) error {
@@ -39,7 +46,15 @@ func (c createUserCredentialCommandHandler) Handle(ctx context.Context, createUs
 		return errors.WithStack(err)
 	}
 
-	userCredential := models.NewUserCredentialBuilder().
+	isExists, err := c.userCredentialValidationService.IsEmailAlreadyExists(ctx, createUserCredentialCommand.Email)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if isExists {
+		return errors.WithStack(app_errors.ErrEmailIsAlreadyExists)
+	}
+
+	userCredential := models.UserCredentialBuilder{}.
 		SetID(id).
 		SetUserID(userID).
 		SetEmail(createUserCredentialCommand.Email).

@@ -14,8 +14,9 @@ import (
 func NewMongo(config config.Config) (*mongo.Database, error) {
 	uri := fmt.Sprintf("mongodb://%s", config.Database.Address)
 	auth := options.Credential{
-		Username: config.Database.Username,
-		Password: config.Database.Password,
+		Username:   config.Database.Username,
+		Password:   config.Database.Password,
+		AuthSource: config.Database.Name,
 	}
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri).SetAuth(auth).SetDirect(true))

@@ -13,5 +13,35 @@
         "locale": "en",
         "key": "stale-object-error",
         "trans": "attempted to update or delete a stale {0}"
+    },
+    {
+        "locale": "en",
+        "key": "email-is-already-exists",
+        "trans": "email is already exists"
+    },
+    {
+        "locale": "en",
+        "key": "unable-to-encrypt-password",
+        "trans": "unable-to-encrypt-password"
+    },
+    {
+        "locale": "en",
+        "key": "password-is-invalid",
+        "trans": "password is invalid"
+    },
+    {
+        "locale": "en",
+        "key": "token-is-invalid",
+        "trans": "token is invalid"
+    },
+    {
+        "locale": "en",
+        "key": "token-has-been-expired",
+        "trans": "token has been expired"
+    },
+    {
+        "locale": "en",
+        "key": "token-has-been-revoked",
+        "trans": "token has been revoked"
     }
 ]

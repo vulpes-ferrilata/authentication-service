@@ -4,6 +4,7 @@ var (
 	ErrUserCredentialNotFound  = NewNotFoundError("user-credential")
 	ErrStaleUserCredential     = NewStaleObjectError("user-credential")
 	ErrClaimNotFound           = NewNotFoundError("claim")
+	ErrEmailIsAlreadyExists    = NewBusinessRuleError("email-is-already-exists")
 	ErrUnableToEncryptPassword = NewBusinessRuleError("unable-to-encrypt-password")
 	ErrPasswordIsInvalid       = NewBusinessRuleError("password-is-invalid")
 	ErrTokenHasBeenExpired     = NewAuthenticationError("token-has-been-expired")

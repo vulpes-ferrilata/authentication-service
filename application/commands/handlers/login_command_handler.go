@@ -23,7 +23,7 @@ func NewLoginCommandHandler(validate *validator.Validate,
 		claimRepository:          claimRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.LoginCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.LoginCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 
@@ -49,7 +49,7 @@ func (l loginCommandHandler) Handle(ctx context.Context, loginCommand *commands.
 		return errors.WithStack(err)
 	}
 
-	claim := models.NewClaimBuilder().
+	claim := models.ClaimBuilder{}.
 		SetID(id).
 		SetUserID(userCredential.GetUserID()).
 		Create()

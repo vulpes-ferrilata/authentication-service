@@ -27,7 +27,6 @@ go.work
 ### Go Patch ###
 /vendor/
 /Godeps/
-**/go.sum
 
 #vscode
 .vscode

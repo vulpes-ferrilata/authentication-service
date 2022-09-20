@@ -22,7 +22,7 @@ func NewRevokeTokenCommandHandler(validate *validator.Validate,
 		claimRepository:      claimRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.RevokeTokenCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.RevokeTokenCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
