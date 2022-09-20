@@ -15,7 +15,7 @@ WORKDIR /
 
 COPY --from=builder /app/authentication-service .
 
-COPY ./translation ./translation
+COPY ./locales ./locales
 COPY ./config.yaml .
 
 EXPOSE 8080
