@@ -10,22 +10,22 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func NewValidationError(fieldErrors ...validator.FieldError) AppError {
-	return &validationError{
-		fieldErrors: fieldErrors,
+func NewCommandValidationError(validationErrors validator.ValidationErrors) AppError {
+	return &commandValidationError{
+		validationErrors: validationErrors,
 	}
 }
 
-type validationError struct {
-	fieldErrors []validator.FieldError
+type commandValidationError struct {
+	validationErrors validator.ValidationErrors
 }
 
-func (v validationError) Error() string {
+func (c commandValidationError) Error() string {
 	builder := new(strings.Builder)
 
 	builder.WriteString("the command contains invalid parameters")
 
-	for _, fieldError := range v.fieldErrors {
+	for _, fieldError := range c.validationErrors {
 		builder.WriteString("\n")
 		builder.WriteString(fieldError.Error())
 	}
@@ -33,16 +33,16 @@ func (v validationError) Error() string {
 	return builder.String()
 }
 
-func (v validationError) Status(translator ut.Translator) *status.Status {
+func (c commandValidationError) Status(translator ut.Translator) *status.Status {
 	detail, err := translator.T("command-validation-error")
 	if err != nil {
-		detail = "the command contains invalid parameters"
+		detail = "command-validation-error"
 	}
 
 	stt := status.New(codes.InvalidArgument, detail)
 
 	badRequest := &errdetails.BadRequest{}
-	for _, fieldError := range v.fieldErrors {
+	for _, fieldError := range c.validationErrors {
 		fieldViolation := &errdetails.BadRequest_FieldViolation{
 			Field:       fieldError.Field(),
 			Description: fieldError.Translate(translator),

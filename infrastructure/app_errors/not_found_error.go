@@ -30,7 +30,7 @@ func (n notFoundError) Status(translator ut.Translator) *status.Status {
 
 	detail, err := translator.T("not-found-error", object)
 	if err != nil {
-		detail = n.Error()
+		detail = fmt.Sprintf("%s: %s", "not-found-error", object)
 	}
 
 	stt := status.New(codes.NotFound, detail)

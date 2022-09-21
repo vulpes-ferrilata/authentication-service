@@ -30,7 +30,7 @@ func (s staleObjectError) Status(translator ut.Translator) *status.Status {
 
 	detail, err := translator.T("stale-object-error", object)
 	if err != nil {
-		detail = s.Error()
+		detail = fmt.Sprintf("%s: %s", "stale-object-error", object)
 	}
 
 	stt := status.New(codes.Aborted, detail)
