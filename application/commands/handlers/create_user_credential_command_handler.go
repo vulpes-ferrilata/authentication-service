@@ -19,12 +19,12 @@ import (
 func NewCreateUserCredentialCommandHandler(validate *validator.Validate,
 	db *mongo.Database,
 	userCredentialRepository repositories.UserCredentialRepository,
-	userCredentialValidationService services.UserCredentialValidationService) command.CommandHandler[*commands.CreateUserCredentialCommand] {
+	userCredentialValidationService services.UserCredentialValidationService) command.CommandHandler[*commands.CreateUserCredential] {
 	handler := &createUserCredentialCommandHandler{
 		userCredentialRepository:        userCredentialRepository,
 		userCredentialValidationService: userCredentialValidationService,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateUserCredentialCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateUserCredential](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -35,8 +35,8 @@ type createUserCredentialCommandHandler struct {
 	userCredentialValidationService services.UserCredentialValidationService
 }
 
-func (c createUserCredentialCommandHandler) Handle(ctx context.Context, createUserCredentialCommand *commands.CreateUserCredentialCommand) error {
-	id, err := primitive.ObjectIDFromHex(createUserCredentialCommand.ID)
+func (c createUserCredentialCommandHandler) Handle(ctx context.Context, createUserCredentialCommand *commands.CreateUserCredential) error {
+	userCredentialID, err := primitive.ObjectIDFromHex(createUserCredentialCommand.UserCredentialID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -55,7 +55,7 @@ func (c createUserCredentialCommandHandler) Handle(ctx context.Context, createUs
 	}
 
 	userCredential := models.UserCredentialBuilder{}.
-		SetID(id).
+		SetID(userCredentialID).
 		SetUserID(userID).
 		SetEmail(createUserCredentialCommand.Email).
 		Create()

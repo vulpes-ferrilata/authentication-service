@@ -4,23 +4,25 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/authentication-service-proto/pb"
+	"github.com/vulpes-ferrilata/authentication-service-proto/pb/requests"
+	"github.com/vulpes-ferrilata/authentication-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/authentication-service/application/commands"
 	"github.com/vulpes-ferrilata/authentication-service/application/queries"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/query"
 	"github.com/vulpes-ferrilata/authentication-service/presentation/v1/mappers"
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
-	"github.com/vulpes-ferrilata/shared/proto/v1/authentication"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func NewAuthenticationServer(getTokenByClaimIDQueryHandler query.QueryHandler[*queries.GetTokenByClaimIDQuery, *models.Token],
-	getClaimByAccessTokenQueryHandler query.QueryHandler[*queries.GetClaimByAccessTokenQuery, *models.Claim],
-	getTokenByRefreshTokenQueryHandler query.QueryHandler[*queries.GetTokenByRefreshTokenQuery, *models.Token],
-	createUserCredentialCommandHandler command.CommandHandler[*commands.CreateUserCredentialCommand],
-	deleteUserCredentialCommandHandler command.CommandHandler[*commands.DeleteUserCredentialCommand],
-	loginCommandHandler command.CommandHandler[*commands.LoginCommand],
-	revokeTokenCommandHandler command.CommandHandler[*commands.RevokeTokenCommand]) authentication.AuthenticationServer {
+func NewAuthenticationServer(getTokenByClaimIDQueryHandler query.QueryHandler[*queries.GetTokenByClaimID, *models.Token],
+	getClaimByAccessTokenQueryHandler query.QueryHandler[*queries.GetClaimByAccessToken, *models.Claim],
+	getTokenByRefreshTokenQueryHandler query.QueryHandler[*queries.GetTokenByRefreshToken, *models.Token],
+	createUserCredentialCommandHandler command.CommandHandler[*commands.CreateUserCredential],
+	deleteUserCredentialCommandHandler command.CommandHandler[*commands.DeleteUserCredential],
+	loginCommandHandler command.CommandHandler[*commands.Login],
+	revokeTokenCommandHandler command.CommandHandler[*commands.RevokeToken]) pb.AuthenticationServer {
 	return &authenticationServer{
 		getTokenByClaimIDQueryHandler:      getTokenByClaimIDQueryHandler,
 		getClaimByAccessTokenQueryHandler:  getClaimByAccessTokenQueryHandler,
@@ -33,18 +35,18 @@ func NewAuthenticationServer(getTokenByClaimIDQueryHandler query.QueryHandler[*q
 }
 
 type authenticationServer struct {
-	authentication.UnimplementedAuthenticationServer
-	getTokenByClaimIDQueryHandler      query.QueryHandler[*queries.GetTokenByClaimIDQuery, *models.Token]
-	getClaimByAccessTokenQueryHandler  query.QueryHandler[*queries.GetClaimByAccessTokenQuery, *models.Claim]
-	getTokenByRefreshTokenQueryHandler query.QueryHandler[*queries.GetTokenByRefreshTokenQuery, *models.Token]
-	createUserCredentialCommandHandler command.CommandHandler[*commands.CreateUserCredentialCommand]
-	deleteUserCredentialCommandHandler command.CommandHandler[*commands.DeleteUserCredentialCommand]
-	loginCommandHandler                command.CommandHandler[*commands.LoginCommand]
-	revokeTokenCommandHandler          command.CommandHandler[*commands.RevokeTokenCommand]
+	pb.UnimplementedAuthenticationServer
+	getTokenByClaimIDQueryHandler      query.QueryHandler[*queries.GetTokenByClaimID, *models.Token]
+	getClaimByAccessTokenQueryHandler  query.QueryHandler[*queries.GetClaimByAccessToken, *models.Claim]
+	getTokenByRefreshTokenQueryHandler query.QueryHandler[*queries.GetTokenByRefreshToken, *models.Token]
+	createUserCredentialCommandHandler command.CommandHandler[*commands.CreateUserCredential]
+	deleteUserCredentialCommandHandler command.CommandHandler[*commands.DeleteUserCredential]
+	loginCommandHandler                command.CommandHandler[*commands.Login]
+	revokeTokenCommandHandler          command.CommandHandler[*commands.RevokeToken]
 }
 
-func (a authenticationServer) GetTokenByClaimID(ctx context.Context, getTokenByClaimIDRequest *authentication.GetTokenByClaimIDRequest) (*authentication.TokenResponse, error) {
-	getTokenByClaimIDQuery := &queries.GetTokenByClaimIDQuery{
+func (a authenticationServer) GetTokenByClaimID(ctx context.Context, getTokenByClaimIDRequest *requests.GetTokenByClaimID) (*responses.Token, error) {
+	getTokenByClaimIDQuery := &queries.GetTokenByClaimID{
 		ClaimID: getTokenByClaimIDRequest.GetClaimID(),
 	}
 
@@ -58,8 +60,8 @@ func (a authenticationServer) GetTokenByClaimID(ctx context.Context, getTokenByC
 	return tokenResponse, nil
 }
 
-func (a authenticationServer) GetClaimByAccessToken(ctx context.Context, getClaimByAccessTokenRequest *authentication.GetClaimByAccessTokenRequest) (*authentication.ClaimResponse, error) {
-	getClaimByAccessTokenQuery := &queries.GetClaimByAccessTokenQuery{
+func (a authenticationServer) GetClaimByAccessToken(ctx context.Context, getClaimByAccessTokenRequest *requests.GetClaimByAccessToken) (*responses.Claim, error) {
+	getClaimByAccessTokenQuery := &queries.GetClaimByAccessToken{
 		AccessToken: getClaimByAccessTokenRequest.GetAccessToken(),
 	}
 
@@ -73,8 +75,8 @@ func (a authenticationServer) GetClaimByAccessToken(ctx context.Context, getClai
 	return claimResponse, nil
 }
 
-func (a authenticationServer) GetTokenByRefreshToken(ctx context.Context, getTokenByRefreshTokenRequest *authentication.GetTokenByRefreshTokenRequest) (*authentication.TokenResponse, error) {
-	getTokenByRefreshTokenQuery := &queries.GetTokenByRefreshTokenQuery{
+func (a authenticationServer) GetTokenByRefreshToken(ctx context.Context, getTokenByRefreshTokenRequest *requests.GetTokenByRefreshToken) (*responses.Token, error) {
+	getTokenByRefreshTokenQuery := &queries.GetTokenByRefreshToken{
 		RefreshToken: getTokenByRefreshTokenRequest.GetRefreshToken(),
 	}
 
@@ -88,12 +90,12 @@ func (a authenticationServer) GetTokenByRefreshToken(ctx context.Context, getTok
 	return tokenResponse, nil
 }
 
-func (a authenticationServer) CreateUserCredential(ctx context.Context, createUserCredentialRequest *authentication.CreateUserCredentialRequest) (*emptypb.Empty, error) {
-	createUserCredentialCommand := &commands.CreateUserCredentialCommand{
-		ID:       createUserCredentialRequest.GetID(),
-		UserID:   createUserCredentialRequest.GetUserID(),
-		Email:    createUserCredentialRequest.GetEmail(),
-		Password: createUserCredentialRequest.GetPassword(),
+func (a authenticationServer) CreateUserCredential(ctx context.Context, createUserCredentialRequest *requests.CreateUserCredential) (*emptypb.Empty, error) {
+	createUserCredentialCommand := &commands.CreateUserCredential{
+		UserCredentialID: createUserCredentialRequest.GetUserCredentialID(),
+		UserID:           createUserCredentialRequest.GetUserID(),
+		Email:            createUserCredentialRequest.GetEmail(),
+		Password:         createUserCredentialRequest.GetPassword(),
 	}
 
 	if err := a.createUserCredentialCommandHandler.Handle(ctx, createUserCredentialCommand); err != nil {
@@ -103,9 +105,9 @@ func (a authenticationServer) CreateUserCredential(ctx context.Context, createUs
 	return &emptypb.Empty{}, nil
 }
 
-func (a authenticationServer) DeleteUserCredential(ctx context.Context, deleteUserCredentialRequest *authentication.DeleteUserCredentialRequest) (*emptypb.Empty, error) {
-	deleteUserCredentialCommand := &commands.DeleteUserCredentialCommand{
-		ID: deleteUserCredentialRequest.GetID(),
+func (a authenticationServer) DeleteUserCredential(ctx context.Context, deleteUserCredentialRequest *requests.DeleteUserCredential) (*emptypb.Empty, error) {
+	deleteUserCredentialCommand := &commands.DeleteUserCredential{
+		UserCredentialID: deleteUserCredentialRequest.GetUserCredentialID(),
 	}
 
 	if err := a.deleteUserCredentialCommandHandler.Handle(ctx, deleteUserCredentialCommand); err != nil {
@@ -115,8 +117,8 @@ func (a authenticationServer) DeleteUserCredential(ctx context.Context, deleteUs
 	return &emptypb.Empty{}, nil
 }
 
-func (a authenticationServer) Login(ctx context.Context, loginRequest *authentication.LoginRequest) (*emptypb.Empty, error) {
-	loginCommand := &commands.LoginCommand{
+func (a authenticationServer) Login(ctx context.Context, loginRequest *requests.Login) (*emptypb.Empty, error) {
+	loginCommand := &commands.Login{
 		ClaimID:  loginRequest.GetClaimID(),
 		Email:    loginRequest.GetEmail(),
 		Password: loginRequest.GetPassword(),
@@ -129,8 +131,8 @@ func (a authenticationServer) Login(ctx context.Context, loginRequest *authentic
 	return &emptypb.Empty{}, nil
 }
 
-func (a authenticationServer) RevokeToken(ctx context.Context, revokeTokenRequest *authentication.RevokeTokenRequest) (*emptypb.Empty, error) {
-	revokeTokenCommand := &commands.RevokeTokenCommand{
+func (a authenticationServer) RevokeToken(ctx context.Context, revokeTokenRequest *requests.RevokeToken) (*emptypb.Empty, error) {
+	revokeTokenCommand := &commands.RevokeToken{
 		RefreshToken: revokeTokenRequest.GetRefreshToken(),
 	}
 

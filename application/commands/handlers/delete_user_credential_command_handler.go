@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewDeleteUserCredentialCommandHandler(validate *validator.Validate, db *mongo.Database, userCredentialRepository repositories.UserCredentialRepository) command.CommandHandler[*commands.DeleteUserCredentialCommand] {
+func NewDeleteUserCredentialCommandHandler(validate *validator.Validate, db *mongo.Database, userCredentialRepository repositories.UserCredentialRepository) command.CommandHandler[*commands.DeleteUserCredential] {
 	handler := &deleteUserCredentialCommandHandler{
 		userCredentialRepository: userCredentialRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.DeleteUserCredentialCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.DeleteUserCredential](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,13 +27,13 @@ type deleteUserCredentialCommandHandler struct {
 	userCredentialRepository repositories.UserCredentialRepository
 }
 
-func (d deleteUserCredentialCommandHandler) Handle(ctx context.Context, deleteUserCredentialCommand *commands.DeleteUserCredentialCommand) error {
-	id, err := primitive.ObjectIDFromHex(deleteUserCredentialCommand.ID)
+func (d deleteUserCredentialCommandHandler) Handle(ctx context.Context, deleteUserCredentialCommand *commands.DeleteUserCredential) error {
+	userCredentialID, err := primitive.ObjectIDFromHex(deleteUserCredentialCommand.UserCredentialID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := d.userCredentialRepository.Delete(ctx, id); err != nil {
+	if err := d.userCredentialRepository.Delete(ctx, userCredentialID); err != nil {
 		return errors.WithStack(err)
 	}
 

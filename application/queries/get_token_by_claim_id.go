@@ -1,5 +1,5 @@
 package queries
 
-type GetTokenByClaimIDQuery struct {
+type GetTokenByClaimID struct {
 	ClaimID string `validate:"required,objectid"`
 }

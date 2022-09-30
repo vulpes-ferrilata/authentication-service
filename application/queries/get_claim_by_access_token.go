@@ -1,5 +1,5 @@
 package queries
 
-type GetClaimByAccessTokenQuery struct {
+type GetClaimByAccessToken struct {
 	AccessToken string `validate:"required,jwt"`
 }

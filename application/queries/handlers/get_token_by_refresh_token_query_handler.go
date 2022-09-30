@@ -15,12 +15,12 @@ import (
 )
 
 func NewGetTokenByRefreshTokenQueryHandler(validate *validator.Validate, tokenServiceResolver services.TokenServiceResolver,
-	claimProjector projectors.ClaimProjector) query.QueryHandler[*queries.GetTokenByRefreshTokenQuery, *models.Token] {
+	claimProjector projectors.ClaimProjector) query.QueryHandler[*queries.GetTokenByRefreshToken, *models.Token] {
 	handler := &getTokenByRefreshTokenQueryHandler{
 		tokenServiceResolver: tokenServiceResolver,
 		claimProjector:       claimProjector,
 	}
-	validationWrapper := wrappers.NewValidationWrapper[*queries.GetTokenByRefreshTokenQuery, *models.Token](validate, handler)
+	validationWrapper := wrappers.NewValidationWrapper[*queries.GetTokenByRefreshToken, *models.Token](validate, handler)
 
 	return validationWrapper
 }
@@ -30,7 +30,7 @@ type getTokenByRefreshTokenQueryHandler struct {
 	claimProjector       projectors.ClaimProjector
 }
 
-func (g getTokenByRefreshTokenQueryHandler) Handle(ctx context.Context, getTokenByRefreshTokenQuery *queries.GetTokenByRefreshTokenQuery) (*models.Token, error) {
+func (g getTokenByRefreshTokenQueryHandler) Handle(ctx context.Context, getTokenByRefreshTokenQuery *queries.GetTokenByRefreshToken) (*models.Token, error) {
 	id, err := g.tokenServiceResolver.GetTokenService(services.RefreshToken).Decrypt(ctx, getTokenByRefreshTokenQuery.RefreshToken)
 	if err != nil {
 		return nil, errors.WithStack(err)

@@ -16,7 +16,7 @@ import (
 
 func NewUserCredentialRepository(db *mongo.Database) repositories.UserCredentialRepository {
 	return &userCredentialRepository{
-		userCredentialCollection: db.Collection("user_credentials"),
+		userCredentialCollection: db.Collection("user_credential"),
 	}
 }
 

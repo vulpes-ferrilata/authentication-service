@@ -17,12 +17,12 @@ import (
 func NewLoginCommandHandler(validate *validator.Validate,
 	db *mongo.Database,
 	userCredentialRepository repositories.UserCredentialRepository,
-	claimRepository repositories.ClaimRepository) command.CommandHandler[*commands.LoginCommand] {
+	claimRepository repositories.ClaimRepository) command.CommandHandler[*commands.Login] {
 	handler := &loginCommandHandler{
 		userCredentialRepository: userCredentialRepository,
 		claimRepository:          claimRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.LoginCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.Login](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -34,7 +34,7 @@ type loginCommandHandler struct {
 	claimRepository          repositories.ClaimRepository
 }
 
-func (l loginCommandHandler) Handle(ctx context.Context, loginCommand *commands.LoginCommand) error {
+func (l loginCommandHandler) Handle(ctx context.Context, loginCommand *commands.Login) error {
 	userCredential, err := l.userCredentialRepository.GetByEmail(ctx, loginCommand.Email)
 	if err != nil {
 		return errors.WithStack(err)

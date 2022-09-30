@@ -1,5 +1,5 @@
 package commands
 
-type RevokeTokenCommand struct {
+type RevokeToken struct {
 	RefreshToken string `validate:"required,jwt"`
 }

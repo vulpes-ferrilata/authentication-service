@@ -1,9 +1,9 @@
 server:
   address: 0.0.0.0:8080
-database:
+mongo:
   address: 127.0.0.1:27017
-  name: authentication
-  username: authentication
+  database_name: authentication
+  username: app_user
   password: 123456
 redis:
   address: 127.0.0.1:6379

@@ -12,11 +12,11 @@ import (
 )
 
 func NewMongo(config config.Config) (*mongo.Database, error) {
-	uri := fmt.Sprintf("mongodb://%s", config.Database.Address)
+	uri := fmt.Sprintf("mongodb://%s", config.Mongo.Address)
 	auth := options.Credential{
-		Username:   config.Database.Username,
-		Password:   config.Database.Password,
-		AuthSource: config.Database.Name,
+		Username:   config.Mongo.Username,
+		Password:   config.Mongo.Password,
+		AuthSource: config.Mongo.DatabaseName,
 	}
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri).SetAuth(auth).SetDirect(true))
@@ -28,7 +28,7 @@ func NewMongo(config config.Config) (*mongo.Database, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	db := client.Database(config.Database.Name)
+	db := client.Database(config.Mongo.DatabaseName)
 
 	return db, nil
 }

@@ -1,16 +1,16 @@
 package mappers
 
 import (
+	"github.com/vulpes-ferrilata/authentication-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
-	"github.com/vulpes-ferrilata/shared/proto/v1/authentication"
 )
 
-func ToTokenResponse(token *models.Token) *authentication.TokenResponse {
+func ToTokenResponse(token *models.Token) *responses.Token {
 	if token == nil {
 		return nil
 	}
 
-	return &authentication.TokenResponse{
+	return &responses.Token{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}

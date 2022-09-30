@@ -17,12 +17,12 @@ import (
 
 func NewGetTokenByClaimIDQueryHandler(validate *validator.Validate,
 	claimProjector projectors.ClaimProjector,
-	tokenServiceResolver services.TokenServiceResolver) query.QueryHandler[*queries.GetTokenByClaimIDQuery, *models.Token] {
+	tokenServiceResolver services.TokenServiceResolver) query.QueryHandler[*queries.GetTokenByClaimID, *models.Token] {
 	handler := &getTokenByClaimIDQueryHandler{
 		claimProjector:       claimProjector,
 		tokenServiceResolver: tokenServiceResolver,
 	}
-	validationWrapper := wrappers.NewValidationWrapper[*queries.GetTokenByClaimIDQuery, *models.Token](validate, handler)
+	validationWrapper := wrappers.NewValidationWrapper[*queries.GetTokenByClaimID, *models.Token](validate, handler)
 
 	return validationWrapper
 }
@@ -32,7 +32,7 @@ type getTokenByClaimIDQueryHandler struct {
 	tokenServiceResolver services.TokenServiceResolver
 }
 
-func (g getTokenByClaimIDQueryHandler) Handle(ctx context.Context, getTokenByClaimIDQuery *queries.GetTokenByClaimIDQuery) (*models.Token, error) {
+func (g getTokenByClaimIDQueryHandler) Handle(ctx context.Context, getTokenByClaimIDQuery *queries.GetTokenByClaimID) (*models.Token, error) {
 	id, err := primitive.ObjectIDFromHex(getTokenByClaimIDQuery.ClaimID)
 	if err != nil {
 		return nil, errors.WithStack(err)

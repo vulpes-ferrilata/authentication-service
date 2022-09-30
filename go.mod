@@ -13,12 +13,12 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
-	github.com/vulpes-ferrilata/shared v0.0.0-20220905172850-3da839adb756
+	github.com/vulpes-ferrilata/authentication-service-proto v0.0.0-20220927111235-b2eab51e8756
 	go.mongodb.org/mongo-driver v1.10.1
 	go.uber.org/dig v1.15.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	google.golang.org/genproto v0.0.0-20220803205849-8f55acc8769f
-	google.golang.org/grpc v1.48.0
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 )
 

@@ -16,12 +16,12 @@ import (
 func NewRevokeTokenCommandHandler(validate *validator.Validate,
 	db *mongo.Database,
 	tokenServiceResolver services.TokenServiceResolver,
-	claimRepository repositories.ClaimRepository) command.CommandHandler[*commands.RevokeTokenCommand] {
+	claimRepository repositories.ClaimRepository) command.CommandHandler[*commands.RevokeToken] {
 	handler := &revokeTokenCommandHandler{
 		tokenServiceResolver: tokenServiceResolver,
 		claimRepository:      claimRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.RevokeTokenCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.RevokeToken](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -32,7 +32,7 @@ type revokeTokenCommandHandler struct {
 	claimRepository      repositories.ClaimRepository
 }
 
-func (r revokeTokenCommandHandler) Handle(ctx context.Context, revokeTokenCommand *commands.RevokeTokenCommand) error {
+func (r revokeTokenCommandHandler) Handle(ctx context.Context, revokeTokenCommand *commands.RevokeToken) error {
 	id, err := r.tokenServiceResolver.GetTokenService(services.RefreshToken).Decrypt(ctx, revokeTokenCommand.RefreshToken)
 	if err != nil {
 		return errors.WithStack(err)

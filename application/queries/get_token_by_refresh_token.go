@@ -1,5 +1,5 @@
 package queries
 
-type GetTokenByRefreshTokenQuery struct {
+type GetTokenByRefreshToken struct {
 	RefreshToken string `validate:"required,jwt"`
 }
