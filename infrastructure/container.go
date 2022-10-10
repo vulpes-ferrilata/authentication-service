@@ -9,9 +9,9 @@ import (
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/grpc/interceptors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/view/redis/projectors"
-	"github.com/vulpes-ferrilata/authentication-service/presentation"
 	"github.com/vulpes-ferrilata/authentication-service/presentation/v1/servers"
 	"go.uber.org/dig"
+	"google.golang.org/grpc"
 )
 
 func NewContainer() *dig.Container {
@@ -24,6 +24,7 @@ func NewContainer() *dig.Container {
 	container.Provide(NewValidator)
 	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
+	container.Provide(grpc.NewServer)
 	//--3rd party services
 	container.Provide(services.NewTokenServiceResolver)
 	//--Grpc interceptors
@@ -54,9 +55,6 @@ func NewContainer() *dig.Container {
 	container.Provide(command_handlers.NewRevokeTokenCommandHandler)
 
 	//Presentation layer
-	//--Server
-	container.Provide(presentation.NewServer)
-	//--Controllers
 	container.Provide(servers.NewAuthenticationServer)
 
 	return container

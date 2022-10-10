@@ -1,0 +1,47 @@
+[
+    {
+        "locale": "vi",
+        "key": "command-validation-error",
+        "trans": "lệnh chứa các tham số không hợp lệ, có thể tìm thấy thêm thông tin trong trường thông tin errors"
+    },
+    {
+        "locale": "vi",
+        "key": "not-found-error",
+        "trans": "không tìm thấy {0}"
+    },
+    {
+        "locale": "vi",
+        "key": "stale-object-error",
+        "trans": "đã cố gắng cập nhật hoặc xóa {0} cũ"
+    },
+    {
+        "locale": "vi",
+        "key": "email-is-already-exists",
+        "trans": "email đã tồn tại"
+    },
+    {
+        "locale": "vi",
+        "key": "unable-to-encrypt-password",
+        "trans": "không thể mã hóa mật khẩu"
+    },
+    {
+        "locale": "vi",
+        "key": "password-is-invalid",
+        "trans": "mật khẩu không hợp lệ"
+    },
+    {
+        "locale": "vi",
+        "key": "token-is-invalid",
+        "trans": "token không hợp lệ"
+    },
+    {
+        "locale": "vi",
+        "key": "token-has-been-expired",
+        "trans": "token đã bị hết hạn"
+    },
+    {
+        "locale": "vi",
+        "key": "token-has-been-revoked",
+        "trans": "token đã bị thu hồi"
+    }
+]

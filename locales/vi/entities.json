@@ -1,0 +1,12 @@
+[
+    {
+        "locale": "vi",
+        "key": "user-credential",
+        "trans": "thông tin xác thực người dùng"
+    },
+    {
+        "locale": "vi",
+        "key": "claim",
+        "trans": "claim"
+    }
+]

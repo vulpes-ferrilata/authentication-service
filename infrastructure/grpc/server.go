@@ -1,4 +1,4 @@
-package presentation
+package grpc
 
 import (
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -17,8 +17,8 @@ func NewServer(logger *logrus.Logger,
 		grpc.ChainUnaryInterceptor(
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logger)),
 			recoverInterceptor.ServerUnaryInterceptor(),
-			errorHandlerInterceptor.ServerUnaryInterceptor(),
 			localeInterceptor.ServerUnaryInterceptor(),
+			errorHandlerInterceptor.ServerUnaryInterceptor(),
 		),
 	)
 
