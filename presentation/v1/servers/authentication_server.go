@@ -55,7 +55,10 @@ func (a authenticationServer) GetTokenByClaimID(ctx context.Context, getTokenByC
 		return nil, errors.WithStack(err)
 	}
 
-	tokenResponse := mappers.ToTokenResponse(token)
+	tokenResponse, err := mappers.TokenMapper{}.ToResponse(token)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return tokenResponse, nil
 }
@@ -70,7 +73,10 @@ func (a authenticationServer) GetClaimByAccessToken(ctx context.Context, getClai
 		return nil, errors.WithStack(err)
 	}
 
-	claimResponse := mappers.ToClaimResponse(claim)
+	claimResponse, err := mappers.ClaimMapper{}.ToResponse(claim)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return claimResponse, nil
 }
@@ -85,7 +91,10 @@ func (a authenticationServer) GetTokenByRefreshToken(ctx context.Context, getTok
 		return nil, errors.WithStack(err)
 	}
 
-	tokenResponse := mappers.ToTokenResponse(token)
+	tokenResponse, err := mappers.TokenMapper{}.ToResponse(token)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return tokenResponse, nil
 }

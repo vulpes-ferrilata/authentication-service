@@ -16,7 +16,7 @@ import (
 
 func NewUserCredentialRepository(db *mongo.Database) repositories.UserCredentialRepository {
 	return &userCredentialRepository{
-		userCredentialCollection: db.Collection("user_credential"),
+		userCredentialCollection: db.Collection("user_credentials"),
 	}
 }
 
@@ -37,13 +37,19 @@ func (u userCredentialRepository) GetByEmail(ctx context.Context, email string) 
 		return nil, errors.WithStack(err)
 	}
 
-	userCredential := mappers.ToUserCredentialDomain(userCredentialDocument)
+	userCredential, err := mappers.UserCredentialMapper{}.ToDomain(userCredentialDocument)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return userCredential, nil
 }
 
 func (u userCredentialRepository) Insert(ctx context.Context, userCredential *models.UserCredential) error {
-	userCredentialDocument := mappers.ToUserCredentialDocument(userCredential)
+	userCredentialDocument, err := mappers.UserCredentialMapper{}.ToDocument(userCredential)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	userCredentialDocument.Version = 1
 
@@ -55,7 +61,10 @@ func (u userCredentialRepository) Insert(ctx context.Context, userCredential *mo
 }
 
 func (u userCredentialRepository) Update(ctx context.Context, userCredential *models.UserCredential) error {
-	userCredentialDocument := mappers.ToUserCredentialDocument(userCredential)
+	userCredentialDocument, err := mappers.UserCredentialMapper{}.ToDocument(userCredential)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	filter := bson.M{"_id": userCredentialDocument.ID, "version": userCredentialDocument.Version}
 

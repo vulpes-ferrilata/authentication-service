@@ -5,13 +5,15 @@ import (
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
 )
 
-func ToTokenResponse(token *models.Token) *responses.Token {
+type TokenMapper struct{}
+
+func (t TokenMapper) ToResponse(token *models.Token) (*responses.Token, error) {
 	if token == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.Token{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
-	}
+	}, nil
 }

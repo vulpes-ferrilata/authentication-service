@@ -11,7 +11,7 @@ import (
 
 func NewUserCredentialValidationService(db *mongo.Database) services.UserCredentialValidationService {
 	return &userCredentialValidationService{
-		userCredentialCollection: db.Collection("user_credential"),
+		userCredentialCollection: db.Collection("user_credentials"),
 	}
 }
 

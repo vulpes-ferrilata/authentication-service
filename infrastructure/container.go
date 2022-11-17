@@ -6,12 +6,12 @@ import (
 	mongo_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/repositories"
 	mongo_services "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/services"
 	redis_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/redis/repositories"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/grpc"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/grpc/interceptors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/view/redis/projectors"
 	"github.com/vulpes-ferrilata/authentication-service/presentation/v1/servers"
 	"go.uber.org/dig"
-	"google.golang.org/grpc"
 )
 
 func NewContainer() *dig.Container {

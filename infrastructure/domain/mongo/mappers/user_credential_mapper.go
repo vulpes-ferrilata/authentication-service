@@ -5,9 +5,11 @@ import (
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/documents"
 )
 
-func ToUserCredentialDocument(userCredential *models.UserCredential) *documents.UserCredential {
+type UserCredentialMapper struct{}
+
+func (u UserCredentialMapper) ToDocument(userCredential *models.UserCredential) (*documents.UserCredential, error) {
 	if userCredential == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &documents.UserCredential{
@@ -20,12 +22,12 @@ func ToUserCredentialDocument(userCredential *models.UserCredential) *documents.
 		Email:        userCredential.GetEmail(),
 		HashPassword: userCredential.GetHashPassword(),
 		Version:      userCredential.GetVersion(),
-	}
+	}, nil
 }
 
-func ToUserCredentialDomain(userCredentialDocument *documents.UserCredential) *models.UserCredential {
+func (u UserCredentialMapper) ToDomain(userCredentialDocument *documents.UserCredential) (*models.UserCredential, error) {
 	if userCredentialDocument == nil {
-		return nil
+		return nil, nil
 	}
 
 	return models.UserCredentialBuilder{}.
@@ -34,5 +36,5 @@ func ToUserCredentialDomain(userCredentialDocument *documents.UserCredential) *m
 		SetEmail(userCredentialDocument.Email).
 		SetHashPassword(userCredentialDocument.HashPassword).
 		SetVersion(userCredentialDocument.Version).
-		Create()
+		Create(), nil
 }

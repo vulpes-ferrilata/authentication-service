@@ -5,13 +5,15 @@ import (
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
 )
 
-func ToClaimResponse(claim *models.Claim) *responses.Claim {
+type ClaimMapper struct{}
+
+func (c ClaimMapper) ToResponse(claim *models.Claim) (*responses.Claim, error) {
 	if claim == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.Claim{
 		ID:     claim.ID.Hex(),
 		UserID: claim.UserID.Hex(),
-	}
+	}, nil
 }
