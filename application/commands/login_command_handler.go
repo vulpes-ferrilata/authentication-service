@@ -1,40 +1,35 @@
-package handlers
+package commands
 
 import (
 	"context"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/application/commands"
 	"github.com/vulpes-ferrilata/authentication-service/domain/models"
 	"github.com/vulpes-ferrilata/authentication-service/domain/repositories"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command/wrappers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewLoginCommandHandler(validate *validator.Validate,
-	db *mongo.Database,
-	userCredentialRepository repositories.UserCredentialRepository,
-	claimRepository repositories.ClaimRepository) command.CommandHandler[*commands.Login] {
-	handler := &loginCommandHandler{
+type LoginCommand struct {
+	ClaimID  string `validate:"required,objectid"`
+	Email    string `validate:"required,email"`
+	Password string `validate:"required,min=8"`
+}
+
+func NewLoginCommandHandler(userCredentialRepository repositories.UserCredentialRepository,
+	claimRepository repositories.ClaimRepository) *LoginCommandHandler {
+	return &LoginCommandHandler{
 		userCredentialRepository: userCredentialRepository,
 		claimRepository:          claimRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.Login](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
-
-	return validationWrapper
 
 }
 
-type loginCommandHandler struct {
+type LoginCommandHandler struct {
 	userCredentialRepository repositories.UserCredentialRepository
 	claimRepository          repositories.ClaimRepository
 }
 
-func (l loginCommandHandler) Handle(ctx context.Context, loginCommand *commands.Login) error {
+func (l LoginCommandHandler) Handle(ctx context.Context, loginCommand *LoginCommand) error {
 	userCredential, err := l.userCredentialRepository.GetByEmail(ctx, loginCommand.Email)
 	if err != nil {
 		return errors.WithStack(err)

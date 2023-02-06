@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/config"
+	"github.com/vulpes-ferrilata/authentication-service/config"
 )
 
 func NewRedis(config config.Config) (*redis.Client, error) {

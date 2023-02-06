@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
+	"github.com/vulpes-ferrilata/authentication-service/app_errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )

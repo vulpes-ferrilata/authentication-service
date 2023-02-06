@@ -1,36 +1,33 @@
-package handlers
+package queries
 
 import (
 	"context"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/application/queries"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/query"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/query/wrappers"
+	"github.com/vulpes-ferrilata/authentication-service/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
 	"github.com/vulpes-ferrilata/authentication-service/view/projectors"
 )
 
-func NewGetTokenByRefreshTokenQueryHandler(validate *validator.Validate, tokenServiceResolver services.TokenServiceResolver,
-	claimProjector projectors.ClaimProjector) query.QueryHandler[*queries.GetTokenByRefreshToken, *models.Token] {
-	handler := &getTokenByRefreshTokenQueryHandler{
+type GetTokenByRefreshTokenQuery struct {
+	RefreshToken string `validate:"required,jwt"`
+}
+
+func NewGetTokenByRefreshTokenQueryHandler(tokenServiceResolver services.TokenServiceResolver,
+	claimProjector projectors.ClaimProjector) *GetTokenByRefreshTokenQueryHandler {
+	return &GetTokenByRefreshTokenQueryHandler{
 		tokenServiceResolver: tokenServiceResolver,
 		claimProjector:       claimProjector,
 	}
-	validationWrapper := wrappers.NewValidationWrapper[*queries.GetTokenByRefreshToken, *models.Token](validate, handler)
-
-	return validationWrapper
 }
 
-type getTokenByRefreshTokenQueryHandler struct {
+type GetTokenByRefreshTokenQueryHandler struct {
 	tokenServiceResolver services.TokenServiceResolver
 	claimProjector       projectors.ClaimProjector
 }
 
-func (g getTokenByRefreshTokenQueryHandler) Handle(ctx context.Context, getTokenByRefreshTokenQuery *queries.GetTokenByRefreshToken) (*models.Token, error) {
+func (g GetTokenByRefreshTokenQueryHandler) Handle(ctx context.Context, getTokenByRefreshTokenQuery *GetTokenByRefreshTokenQuery) (*models.Token, error) {
 	id, err := g.tokenServiceResolver.GetTokenService(services.RefreshToken).Decrypt(ctx, getTokenByRefreshTokenQuery.RefreshToken)
 	if err != nil {
 		return nil, errors.WithStack(err)

@@ -1,4 +1,4 @@
-package grpc
+package presentation
 
 import (
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"

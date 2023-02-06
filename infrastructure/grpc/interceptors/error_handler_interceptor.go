@@ -6,7 +6,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
+	"github.com/vulpes-ferrilata/authentication-service/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/context_values"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"

@@ -1,18 +1,18 @@
 package mappers
 
 import (
-	"github.com/vulpes-ferrilata/authentication-service-proto/pb/responses"
+	pb_models "github.com/vulpes-ferrilata/authentication-service-proto/pb/models"
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
 )
 
 type TokenMapper struct{}
 
-func (t TokenMapper) ToResponse(token *models.Token) (*responses.Token, error) {
+func (t TokenMapper) ToResponse(token *models.Token) (*pb_models.Token, error) {
 	if token == nil {
 		return nil, nil
 	}
 
-	return &responses.Token{
+	return &pb_models.Token{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}, nil

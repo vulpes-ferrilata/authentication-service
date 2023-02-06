@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/authentication-service/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/domain/models"
 	"github.com/vulpes-ferrilata/authentication-service/domain/repositories"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/documents"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/mappers"
 	"go.mongodb.org/mongo-driver/bson"
