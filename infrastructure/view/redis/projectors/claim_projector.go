@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
+	"github.com/vulpes-ferrilata/authentication-service/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
 	"github.com/vulpes-ferrilata/authentication-service/view/projectors"
 	"go.mongodb.org/mongo-driver/bson/primitive"

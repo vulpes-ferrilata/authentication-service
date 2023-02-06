@@ -2,7 +2,7 @@
     {
         "locale": "en",
         "key": "command-validation-error",
-        "trans": "the command contains invalid parameters, more information can be found in the errors"
+        "trans": "the command contains invalid parameters"
     },
     {
         "locale": "en",

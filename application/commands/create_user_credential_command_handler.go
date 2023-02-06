@@ -1,41 +1,37 @@
-package handlers
+package commands
 
 import (
 	"context"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/application/commands"
+	"github.com/vulpes-ferrilata/authentication-service/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/domain/models"
 	"github.com/vulpes-ferrilata/authentication-service/domain/repositories"
 	"github.com/vulpes-ferrilata/authentication-service/domain/services"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/command/wrappers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewCreateUserCredentialCommandHandler(validate *validator.Validate,
-	db *mongo.Database,
-	userCredentialRepository repositories.UserCredentialRepository,
-	userCredentialValidationService services.UserCredentialValidationService) command.CommandHandler[*commands.CreateUserCredential] {
-	handler := &createUserCredentialCommandHandler{
+type CreateUserCredentialCommand struct {
+	UserCredentialID string `validate:"required,objectid"`
+	UserID           string `validate:"required,objectid"`
+	Email            string `validate:"required,email"`
+	Password         string `validate:"required,gte=8"`
+}
+
+func NewCreateUserCredentialCommandHandler(userCredentialRepository repositories.UserCredentialRepository,
+	userCredentialValidationService services.UserCredentialValidationService) *CreateUserCredentialCommandHandler {
+	return &CreateUserCredentialCommandHandler{
 		userCredentialRepository:        userCredentialRepository,
 		userCredentialValidationService: userCredentialValidationService,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateUserCredential](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
-
-	return validationWrapper
 }
 
-type createUserCredentialCommandHandler struct {
+type CreateUserCredentialCommandHandler struct {
 	userCredentialRepository        repositories.UserCredentialRepository
 	userCredentialValidationService services.UserCredentialValidationService
 }
 
-func (c createUserCredentialCommandHandler) Handle(ctx context.Context, createUserCredentialCommand *commands.CreateUserCredential) error {
+func (c CreateUserCredentialCommandHandler) Handle(ctx context.Context, createUserCredentialCommand *CreateUserCredentialCommand) error {
 	userCredentialID, err := primitive.ObjectIDFromHex(createUserCredentialCommand.UserCredentialID)
 	if err != nil {
 		return errors.WithStack(err)

@@ -1,16 +1,17 @@
 package infrastructure
 
 import (
-	command_handlers "github.com/vulpes-ferrilata/authentication-service/application/commands/handlers"
-	query_handlers "github.com/vulpes-ferrilata/authentication-service/application/queries/handlers"
+	"github.com/vulpes-ferrilata/authentication-service/application/commands"
+	"github.com/vulpes-ferrilata/authentication-service/application/queries"
+	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/middlewares"
 	mongo_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/repositories"
 	mongo_services "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/mongo/services"
 	redis_repositories "github.com/vulpes-ferrilata/authentication-service/infrastructure/domain/redis/repositories"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/grpc"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/grpc/interceptors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/view/redis/projectors"
-	"github.com/vulpes-ferrilata/authentication-service/presentation/v1/servers"
+	"github.com/vulpes-ferrilata/authentication-service/presentation"
+	v1 "github.com/vulpes-ferrilata/authentication-service/presentation/v1"
 	"go.uber.org/dig"
 )
 
@@ -24,13 +25,16 @@ func NewContainer() *dig.Container {
 	container.Provide(NewValidator)
 	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
-	container.Provide(grpc.NewServer)
+
 	//--3rd party services
 	container.Provide(services.NewTokenServiceResolver)
 	//--Grpc interceptors
 	container.Provide(interceptors.NewRecoverInterceptor)
 	container.Provide(interceptors.NewErrorHandlerInterceptor)
 	container.Provide(interceptors.NewLocaleInterceptor)
+	//--Cqrs middlewares
+	container.Provide(middlewares.NewValidationMiddleware)
+	container.Provide(middlewares.NewTransactionMiddleware)
 
 	//Domain layer
 	//--Repositories
@@ -45,17 +49,18 @@ func NewContainer() *dig.Container {
 
 	//Application layer
 	//--Queries
-	container.Provide(query_handlers.NewGetClaimByAccessTokenQueryHandler)
-	container.Provide(query_handlers.NewGetTokenByClaimIDQueryHandler)
-	container.Provide(query_handlers.NewGetTokenByRefreshTokenQueryHandler)
+	container.Provide(queries.NewGetClaimByAccessTokenQueryHandler)
+	container.Provide(queries.NewGetTokenByClaimIDQueryHandler)
+	container.Provide(queries.NewGetTokenByRefreshTokenQueryHandler)
 	//--Commands
-	container.Provide(command_handlers.NewCreateUserCredentialCommandHandler)
-	container.Provide(command_handlers.NewLoginCommandHandler)
-	container.Provide(command_handlers.NewDeleteUserCredentialCommandHandler)
-	container.Provide(command_handlers.NewRevokeTokenCommandHandler)
+	container.Provide(commands.NewCreateUserCredentialCommandHandler)
+	container.Provide(commands.NewLoginCommandHandler)
+	container.Provide(commands.NewDeleteUserCredentialCommandHandler)
+	container.Provide(commands.NewRevokeTokenCommandHandler)
 
 	//Presentation layer
-	container.Provide(servers.NewAuthenticationServer)
+	container.Provide(presentation.NewServer)
+	container.Provide(v1.NewAuthenticationServer)
 
 	return container
 }

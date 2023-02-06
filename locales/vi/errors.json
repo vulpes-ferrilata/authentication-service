@@ -2,7 +2,7 @@
     {
         "locale": "vi",
         "key": "command-validation-error",
-        "trans": "lệnh chứa các tham số không hợp lệ, có thể tìm thấy thêm thông tin trong trường thông tin errors"
+        "trans": "lệnh chứa các tham số không hợp lệ"
     },
     {
         "locale": "vi",

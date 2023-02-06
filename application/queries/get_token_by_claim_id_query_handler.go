@@ -1,38 +1,34 @@
-package handlers
+package queries
 
 import (
 	"context"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/application/queries"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/query"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/cqrs/query/wrappers"
+	"github.com/vulpes-ferrilata/authentication-service/app_errors"
 	"github.com/vulpes-ferrilata/authentication-service/infrastructure/services"
 	"github.com/vulpes-ferrilata/authentication-service/view/models"
 	"github.com/vulpes-ferrilata/authentication-service/view/projectors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func NewGetTokenByClaimIDQueryHandler(validate *validator.Validate,
-	claimProjector projectors.ClaimProjector,
-	tokenServiceResolver services.TokenServiceResolver) query.QueryHandler[*queries.GetTokenByClaimID, *models.Token] {
-	handler := &getTokenByClaimIDQueryHandler{
+type GetTokenByClaimIDQuery struct {
+	ClaimID string `validate:"required,objectid"`
+}
+
+func NewGetTokenByClaimIDQueryHandler(claimProjector projectors.ClaimProjector,
+	tokenServiceResolver services.TokenServiceResolver) *GetTokenByClaimIDQueryHandler {
+	return &GetTokenByClaimIDQueryHandler{
 		claimProjector:       claimProjector,
 		tokenServiceResolver: tokenServiceResolver,
 	}
-	validationWrapper := wrappers.NewValidationWrapper[*queries.GetTokenByClaimID, *models.Token](validate, handler)
-
-	return validationWrapper
 }
 
-type getTokenByClaimIDQueryHandler struct {
+type GetTokenByClaimIDQueryHandler struct {
 	claimProjector       projectors.ClaimProjector
 	tokenServiceResolver services.TokenServiceResolver
 }
 
-func (g getTokenByClaimIDQueryHandler) Handle(ctx context.Context, getTokenByClaimIDQuery *queries.GetTokenByClaimID) (*models.Token, error) {
+func (g GetTokenByClaimIDQueryHandler) Handle(ctx context.Context, getTokenByClaimIDQuery *GetTokenByClaimIDQuery) (*models.Token, error) {
 	id, err := primitive.ObjectIDFromHex(getTokenByClaimIDQuery.ClaimID)
 	if err != nil {
 		return nil, errors.WithStack(err)

@@ -2,14 +2,14 @@ package services
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/authentication-service/infrastructure/config"
+	"github.com/vulpes-ferrilata/authentication-service/config"
 )
 
 type tokenType string
 
 var (
-	AccessToken  tokenType = "access token"
-	RefreshToken tokenType = "refresh token"
+	AccessToken  tokenType = "AccessToken"
+	RefreshToken tokenType = "RefreshToken"
 )
 
 type TokenServiceResolver interface {
